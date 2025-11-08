@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PaymentMethod {
+  ONLINE
+  CASH
+  OTHER
+}
+
+enum PaymentStatus {
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id        String       @id @default(cuid())
+  name      String
+  email     String       @unique
+  password  String
+  workOrders WorkOrder[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model WorkOrder {
+  id              String       @id @default(cuid())
+  workOrderNumber String       @unique
+  clientName      String
+  GSTIN           String?
+  workOrderDate   DateTime
+  workDescription String
+  amount          Float
+  GST             Float
+  totalAmount     Float
+  remainingAmount Float        @default(0)
+  isCompleted     Boolean      @default(false)
+  userId          String?
+  user            User?        @relation(fields: [userId], references: [id])
+  invoices        Invoice[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Invoice {
+  id                String           @id @default(cuid())
+  woDate            DateTime
+  woNumber          String
+  site              String
+  invoiceDate       DateTime
+  invoiceNo         String           @unique
+  client            String
+  billingAmount     Float
+  billingIGST       Float
+  billingSGST       Float
+  totalBillingAmount Float
+  tds               Float
+  netPay            Float
+  remainingAmount   Float            @default(0)
+  isCompleted       Boolean          @default(false)
+  reminderEnabled   Boolean          @default(false)
+  workOrderId       String
+  workOrder         WorkOrder        @relation(fields: [workOrderId], references: [id])
+  paymentReceipt    PaymentReceipt?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model PaymentReceipt {
+  id              String        @id @default(cuid())
+  paymentReceived Float
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus
+  invoiceId       String        @unique
+  invoice         Invoice       @relation(fields: [invoiceId], references: [id])
+  createdAt       DateTime      @default(now())
+}

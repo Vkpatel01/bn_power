@@ -1,0 +1,112 @@
+export const mockInvoices = [
+  {
+    invoiceNo: "INV-2024-001",
+    client: "Acme Industries",
+    amount: 150000,
+    total: 177000,
+    fy: "2024-25",
+    status: "Paid",
+    date: "2024-01-15",
+    woNo: "WO-001",
+  },
+  {
+    invoiceNo: "INV-2024-002",
+    client: "Global Power Ltd",
+    amount: 200000,
+    total: 236000,
+    fy: "2024-25",
+    status: "Pending",
+    date: "2024-02-20",
+    woNo: "WO-002",
+  },
+  {
+    invoiceNo: "INV-2024-003",
+    client: "Tech Solutions Inc",
+    amount: 100000,
+    total: 118000,
+    fy: "2024-25",
+    status: "Paid",
+    date: "2024-03-10",
+    woNo: "WO-003",
+  },
+  {
+    invoiceNo: "INV-2024-004",
+    client: "Acme Industries",
+    amount: 175000,
+    total: 206500,
+    fy: "2024-25",
+    status: "Unpaid",
+    date: "2024-04-05",
+    woNo: "WO-001",
+  },
+  {
+    invoiceNo: "INV-2024-005",
+    client: "Global Power Ltd",
+    amount: 225000,
+    total: 265500,
+    fy: "2024-25",
+    status: "Partial",
+    date: "2024-05-12",
+    woNo: "WO-002",
+  },
+]
+
+export const mockWorkOrders = [
+  {
+    woNo: "WO-001",
+    client: "Acme Industries",
+    value: 500000,
+    startDate: "2024-01-01",
+    endDate: "2024-06-30",
+    status: "Active",
+  },
+  {
+    woNo: "WO-002",
+    client: "Global Power Ltd",
+    value: 750000,
+    startDate: "2024-02-15",
+    endDate: "2024-08-15",
+    status: "Active",
+  },
+  {
+    woNo: "WO-003",
+    client: "Tech Solutions Inc",
+    value: 300000,
+    startDate: "2023-12-01",
+    endDate: "2024-03-31",
+    status: "Completed",
+  },
+]
+
+export const mockPayments = [
+  {
+    invoiceNo: "INV-2024-001",
+    amountReceived: 177000,
+    date: "2024-02-01",
+    balance: 0,
+  },
+  {
+    invoiceNo: "INV-2024-002",
+    amountReceived: 100000,
+    date: "2024-03-15",
+    balance: 136000,
+  },
+  {
+    invoiceNo: "INV-2024-003",
+    amountReceived: 118000,
+    date: "2024-03-20",
+    balance: 0,
+  },
+  {
+    invoiceNo: "INV-2024-004",
+    amountReceived: 0,
+    date: "-",
+    balance: 206500,
+  },
+  {
+    invoiceNo: "INV-2024-005",
+    amountReceived: 132750,
+    date: "2024-05-20",
+    balance: 132750,
+  },
+]
