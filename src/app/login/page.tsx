@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,18 +15,24 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
-    // Mock authentication - check for hardcoded credentials
-    if (email === "admin@bnpower.com" && password === "admin123") {
-      // Store auth state in sessionStorage (mock auth)
-      sessionStorage.setItem("isAdminAuthenticated", "true")
-      sessionStorage.setItem("adminEmail", email)
-      router.push("/admin/dashboard")
-    } else {
-      setError("Invalid email or password. Try admin@bnpower.com / admin123")
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError("Invalid email or password")
+      } else {
+        router.push("/admin/dashboard")
+      }
+    } catch (error) {
+      setError("Login failed. Please try again.")
     }
   }
 
