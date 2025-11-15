@@ -29,24 +29,24 @@ export function Contact() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
-            <h2 className="text-4xl font-bold text-foreground mb-6">Get in Touch</h2>
+            <h2 className="text-4xl font-bold text-foreground mb-6 text-center">Get in Touch</h2>
             <p className="text-muted-foreground mb-8 leading-relaxed text-lg">
-              Have a project in mind? We'd love to discuss how BN Power can help you achieve your energy and
+              We'd love to discuss how BN Power can help you achieve your energy and
               infrastructure goals.
             </p>
 
             <div className="space-y-6">
               <div>
                 <h3 className="font-bold text-foreground mb-2">Address</h3>
-                <p className="text-muted-foreground">123 Power Lane, Industrial Park, Mumbai, India</p>
+                <p className="text-muted-foreground">PS 6/13, Vidyasagar Pally, Benachity, Durgapur, West Bengal -713213</p>
               </div>
               <div>
                 <h3 className="font-bold text-foreground mb-2">Email</h3>
-                <p className="text-muted-foreground">info@bnpower.com</p>
+                <p className="text-muted-foreground">bnpowerenterprises@gmail.com</p>
               </div>
               <div>
                 <h3 className="font-bold text-foreground mb-2">Phone</h3>
-                <p className="text-muted-foreground">+91 (22) 1234-5678</p>
+                <p className="text-muted-foreground">+91 95471 63823, +91 77829 01308</p>
               </div>
             </div>
           </div>

@@ -10,7 +10,7 @@ export function Footer() {
               <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
                 <span className="text-accent-foreground font-bold text-sm">BN</span>
               </div>
-              <span className="font-bold text-lg">BN Power</span>
+              <span className="font-bold text-lg">BN Power Enterprises</span>
             </div>
             <p className="text-primary-foreground/80 text-sm">
               Leading provider of power infrastructure and industrial engineering solutions.
@@ -48,22 +48,33 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-primary-foreground/80">
               <li>
                 <a href="#" className="hover:text-accent transition-colors">
-                  Power Projects
+                  Mechanical Erection
                 </a>
               </li>
               <li>
                 <a href="#" className="hover:text-accent transition-colors">
-                  EPC Services
+                  Equipment Maintenance
                 </a>
               </li>
               <li>
                 <a href="#" className="hover:text-accent transition-colors">
-                  O&M Solutions
+                  Fabrication Services
+
                 </a>
               </li>
               <li>
                 <a href="#" className="hover:text-accent transition-colors">
-                  Renewable Energy
+                  Overhauling Solutions
+                </a>
+              </li>
+                            <li>
+                <a href="#" className="hover:text-accent transition-colors">
+                  Manpower Supply
+                </a>
+              </li>
+                            <li>
+                <a href="#" className="hover:text-accent transition-colors">
+                  Rotary & Static Equipment Erection
                 </a>
               </li>
             </ul>
@@ -75,13 +86,14 @@ export function Footer() {
               <div className="flex items-center gap-2">
                 <Mail size={16} />
                 <a href="mailto:info@bnpower.com" className="hover:text-accent transition-colors">
-                  info@bnpower.com
+                  bnpowerenterprises@gmail.com
+
                 </a>
               </div>
               <div className="flex items-center gap-2">
                 <Phone size={16} />
-                <a href="tel:+911234567890" className="hover:text-accent transition-colors">
-                  +91 22 1234-5678
+                <a href="tel:+919547163823" className="hover:text-accent transition-colors">
+                  +91 9547163823, +91 7782901308
                 </a>
               </div>
             </div>

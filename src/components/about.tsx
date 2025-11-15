@@ -29,7 +29,16 @@ export function About() {
               We operate with integrity and hold registrations under MSME, GST, EPFO, and ESIC — reflecting our
               compliance and professionalism.
             </p>
-            <Button className="bg-primary hover:bg-primary/90">Read More</Button>
+            <a
+  href="/BNPower_Profile.pdf"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <Button className="bg-primary hover:bg-primary/90">
+    Download Profile
+  </Button>
+</a>
+
           </div>
         </div>
       </div>
