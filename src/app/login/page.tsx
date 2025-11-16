@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import Image from "next/image";
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
@@ -40,10 +40,8 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="absolute top-0 left-0 p-4">
         <a href="/" className="flex items-center gap-2 hover:opacity-80 transition">
-          <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-            <span className="text-accent-foreground font-bold text-sm">BN</span>
-          </div>
-          <span className="font-bold text-lg">BN Power</span>
+        <Image src="/bnpe-logo.jpg"  alt="BN Power Logo"  width={50}  height={50}  className="rounded-full object-cover"/>
+          <span className="font-bold text-lg">BN Power Enterprises</span>
         </a>
       </div>
 

@@ -25,10 +25,42 @@ export function About() {
               Kirloskar Pneumatic Company, BN Power has consistently proven its expertise and reliability in the power
               and industrial sectors.
             </p>
-            <p className="text-muted-foreground mb-8 leading-relaxed text-lg">
-              We operate with integrity and hold registrations under MSME, GST, EPFO, and ESIC — reflecting our
-              compliance and professionalism.
-            </p>
+<p className="text-muted-foreground mb-8 leading-relaxed text-lg">
+  We operate with integrity and hold registrations under 
+  <a 
+    href="/msme_certificate.pdf" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className="text-primary underline ml-1"
+  >
+    MSME
+  </a>, 
+  <a 
+    href="/gst_certificate.pdf" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className="text-primary underline ml-1"
+  >
+    GST
+  </a>, 
+  <a 
+    href="/epfo_certificate.pdf" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className="text-primary underline ml-1"
+  >
+    EPFO
+  </a>, and 
+  <a 
+    href="/esic_certificate.pdf" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className="text-primary underline ml-1"
+  >
+    ESIC
+  </a> — reflecting our compliance and professionalism.
+</p>
+
             <a
   href="/BNPower_Profile.pdf"
   target="_blank"

@@ -6,12 +6,12 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-8">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-                <span className="text-accent-foreground font-bold text-sm">BN</span>
-              </div>
-              <span className="font-bold text-lg">BN Power Enterprises</span>
-            </div>
+              <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+                    <img src="/bnpe-logo.jpg" alt="BN Power Logo" className="w-full h-full object-cover"/>
+                  </div>
+                  <span className="font-bold text-lg">BN Power Enterprises</span>
+                </div>
             <p className="text-primary-foreground/80 text-sm">
               Leading provider of power infrastructure and industrial engineering solutions.
             </p>

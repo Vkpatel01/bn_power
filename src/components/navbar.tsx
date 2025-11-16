@@ -25,15 +25,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-2">
-            <Image
-  src="/bnpe-logo.jpg"
-  alt="BN Power Logo"
-  width={40}
-  height={40}
-  className="object-contain"
-/>
-
-
+            <Image  src="/bnpe-logo.jpg"  alt="BN Power Logo"  width={50}  height={50}  className="object-contain rounded-full"/>
             <span className="font-bold text-lg hidden sm:inline">BN Power Enterprises</span>
           </div>
 
