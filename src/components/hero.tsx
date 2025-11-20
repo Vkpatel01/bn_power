@@ -10,8 +10,7 @@ export function Hero() {
       <div
         className="absolute inset-0 opacity-30"
         style={{
-          backgroundImage:
-            "url(/placeholder.svg?height=600&width=1200&query=power+plant+turbine+mechanical+erection+heavy+industrial)",
+          backgroundImage: "url(/placeholder.png)",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
