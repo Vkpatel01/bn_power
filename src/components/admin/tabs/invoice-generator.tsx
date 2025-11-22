@@ -22,15 +22,15 @@ export function InvoiceGenerator() {
   const [selectedWO, setSelectedWO] = useState<WorkOrder | null>(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    woNumber: "",
-    site: "",
-    invoiceDate: "",
     invoiceNo: "",
-    client: "",
+    invoiceDate: "",
     billingAmount: "",
-    billingIGST: "",
-    billingSGST: "",
-    tds: "",
+    taxType: "",
+    igstAmount: "",
+    cgstAmount: "",
+    sgstAmount: "",
+    tdsAmount: "",
+    remarks: "",
   });
 
   useEffect(() => {
@@ -50,8 +50,6 @@ export function InvoiceGenerator() {
       setSelectedWO(wo);
       setFormData(prev => ({
         ...prev,
-        woNumber: wo.workOrderNumber,
-        client: wo.clientName,
       }));
     }
   };
@@ -63,14 +61,15 @@ export function InvoiceGenerator() {
 
   const calculateTotals = () => {
     const billingAmount = parseFloat(formData.billingAmount) || 0;
-    const igst = parseFloat(formData.billingIGST) || 0;
-    const sgst = parseFloat(formData.billingSGST) || 0;
-    const tds = parseFloat(formData.tds) || 0;
+    const igst = parseFloat(formData.igstAmount) || 0;
+    const cgst = parseFloat(formData.cgstAmount) || 0;
+    const sgst = parseFloat(formData.sgstAmount) || 0;
+    const tds = parseFloat(formData.tdsAmount) || 0;
     
-    const totalBillingAmount = billingAmount + igst + sgst;
-    const netPay = totalBillingAmount - tds;
+    const totalBillingAmount = billingAmount + igst + cgst + sgst;
+    const netPayAmount = totalBillingAmount - tds;
     
-    return { totalBillingAmount, netPay };
+    return { totalBillingAmount, netPayAmount };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,23 +87,22 @@ export function InvoiceGenerator() {
     }
 
     setLoading(true);
-    const { totalBillingAmount, netPay } = calculateTotals();
+    const { totalBillingAmount, netPayAmount } = calculateTotals();
 
     try {
       const result = await createInvoice({
-        woDate: new Date(),
-        woNumber: formData.woNumber,
-        site: formData.site,
-        invoiceDate: new Date(formData.invoiceDate),
         invoiceNo: formData.invoiceNo,
-        client: formData.client,
-        billingAmount,
-        billingIGST: parseFloat(formData.billingIGST),
-        billingSGST: parseFloat(formData.billingSGST),
-        totalBillingAmount,
-        tds: parseFloat(formData.tds),
-        netPay,
         workOrderId: selectedWO.id,
+        invoiceDate: new Date(formData.invoiceDate),
+        billingAmount,
+        taxType: formData.taxType || undefined,
+        igstAmount: parseFloat(formData.igstAmount) || 0,
+        cgstAmount: parseFloat(formData.cgstAmount) || 0,
+        sgstAmount: parseFloat(formData.sgstAmount) || 0,
+        totalBillingAmount,
+        tdsAmount: parseFloat(formData.tdsAmount) || 0,
+        netPayAmount,
+        remarks: formData.remarks || undefined,
       });
 
       if (result.success) {
@@ -113,15 +111,15 @@ export function InvoiceGenerator() {
           description: "Invoice created successfully!",
         });
         setFormData({
-          woNumber: "",
-          site: "",
-          invoiceDate: "",
           invoiceNo: "",
-          client: "",
+          invoiceDate: "",
           billingAmount: "",
-          billingIGST: "",
-          billingSGST: "",
-          tds: "",
+          taxType: "",
+          igstAmount: "",
+          cgstAmount: "",
+          sgstAmount: "",
+          tdsAmount: "",
+          remarks: "",
         });
         setSelectedWO(null);
         
@@ -145,7 +143,7 @@ export function InvoiceGenerator() {
     }
   };
 
-  const { totalBillingAmount, netPay } = calculateTotals();
+  const { totalBillingAmount, netPayAmount } = calculateTotals();
 
   return (
     <div className="space-y-4">
@@ -200,18 +198,6 @@ export function InvoiceGenerator() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">WO Number</label>
-                    <Input name="woNumber" value={formData.woNumber} onChange={handleChange} readOnly />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Client</label>
-                    <Input name="client" value={formData.client} onChange={handleChange} readOnly />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Site</label>
-                    <Input name="site" value={formData.site} onChange={handleChange} placeholder="Site location" required />
-                  </div>
-                  <div className="space-y-2">
                     <label className="text-sm font-medium">Invoice Date</label>
                     <Input name="invoiceDate" type="date" value={formData.invoiceDate} onChange={handleChange} required />
                   </div>
@@ -235,16 +221,37 @@ export function InvoiceGenerator() {
                     </p>
                   </div>
                   <div className="space-y-2">
+                    <label className="text-sm font-medium">Tax Type (Optional)</label>
+                    <select
+                      name="taxType"
+                      value={formData.taxType}
+                      onChange={handleChange}
+                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base"
+                    >
+                      <option value="">Select tax type</option>
+                      <option value="IGST">IGST</option>
+                      <option value="CGST_SGST">CGST + SGST</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
                     <label className="text-sm font-medium">IGST (₹)</label>
-                    <Input name="billingIGST" type="number" value={formData.billingIGST} onChange={handleChange} placeholder="0.00" />
+                    <Input name="igstAmount" type="number" value={formData.igstAmount} onChange={handleChange} placeholder="0.00" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">CGST (₹)</label>
+                    <Input name="cgstAmount" type="number" value={formData.cgstAmount} onChange={handleChange} placeholder="0.00" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">SGST (₹)</label>
-                    <Input name="billingSGST" type="number" value={formData.billingSGST} onChange={handleChange} placeholder="0.00" />
+                    <Input name="sgstAmount" type="number" value={formData.sgstAmount} onChange={handleChange} placeholder="0.00" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">TDS (₹)</label>
-                    <Input name="tds" type="number" value={formData.tds} onChange={handleChange} placeholder="0.00" />
+                    <Input name="tdsAmount" type="number" value={formData.tdsAmount} onChange={handleChange} placeholder="0.00" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Remarks (Optional)</label>
+                    <Input name="remarks" value={formData.remarks} onChange={handleChange} placeholder="Additional remarks" />
                   </div>
                 </div>
 
@@ -257,7 +264,7 @@ export function InvoiceGenerator() {
                     </div>
                     <div>
                       <p className="font-medium">Net Pay (After TDS)</p>
-                      <p className="text-lg font-bold text-green-600">₹{netPay.toLocaleString()}</p>
+                      <p className="text-lg font-bold text-green-600">₹{netPayAmount.toLocaleString()}</p>
                     </div>
                   </div>
                 </div>

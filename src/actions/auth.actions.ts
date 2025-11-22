@@ -3,17 +3,17 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-export const login = async (email: string, password: string) => {
+export const login = async (username: string, password: string) => {
   try {
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const admin = await prisma.admin.findUnique({
+      where: { username },
     });
 
-    if (!user || !user.password) {
+    if (!admin || !admin.password) {
       throw new Error("Invalid credentials");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
 
     if (!isPasswordValid) {
       throw new Error("Invalid credentials");
@@ -21,7 +21,7 @@ export const login = async (email: string, password: string) => {
 
     return {
       success: true,
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: admin.id, username: admin.username },
     };
   } catch (error) {
     return { success: false, error: "Login failed" };

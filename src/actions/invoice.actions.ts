@@ -4,25 +4,28 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function createInvoice(data: {
-  woDate: Date;
-  woNumber: string;
-  site: string;
-  invoiceDate: Date;
   invoiceNo: string;
-  client: string;
-  billingAmount: number;
-  billingIGST: number;
-  billingSGST: number;
-  totalBillingAmount: number;
-  tds: number;
-  netPay: number;
   workOrderId: string;
+  invoiceDate: Date;
+  billingAmount: number;
+  taxType?: string;
+  igstAmount?: number;
+  cgstAmount?: number;
+  sgstAmount?: number;
+  totalBillingAmount: number;
+  tdsAmount?: number;
+  netPayAmount: number;
+  remarks?: string;
 }) {
   try {
     const invoice = await prisma.invoice.create({
       data: {
         ...data,
-        remainingAmount: data.netPay,
+        igstAmount: data.igstAmount || 0,
+        cgstAmount: data.cgstAmount || 0,
+        sgstAmount: data.sgstAmount || 0,
+        tdsAmount: data.tdsAmount || 0,
+        remainingAmount: data.netPayAmount,
       },
     });
     revalidatePath("/admin/dashboard");
@@ -37,7 +40,7 @@ export async function getInvoices() {
     const invoices = await prisma.invoice.findMany({
       include: {
         workOrder: true,
-        paymentReceipt: true,
+        payments: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -53,7 +56,7 @@ export async function getInvoiceById(id: string) {
       where: { id },
       include: {
         workOrder: true,
-        paymentReceipt: true,
+        payments: true,
       },
     });
     return { success: true, data: invoice };
@@ -63,21 +66,18 @@ export async function getInvoiceById(id: string) {
 }
 
 export async function updateInvoice(id: string, data: Partial<{
-  woDate: Date;
-  woNumber: string;
-  site: string;
-  invoiceDate: Date;
   invoiceNo: string;
-  client: string;
+  invoiceDate: Date;
   billingAmount: number;
-  billingIGST: number;
-  billingSGST: number;
+  taxType: string;
+  igstAmount: number;
+  cgstAmount: number;
+  sgstAmount: number;
   totalBillingAmount: number;
-  tds: number;
-  netPay: number;
+  tdsAmount: number;
+  netPayAmount: number;
   remainingAmount: number;
-  isCompleted: boolean;
-  reminderEnabled: boolean;
+  remarks: string;
 }>) {
   try {
     const invoice = await prisma.invoice.update({
@@ -103,36 +103,49 @@ export async function deleteInvoice(id: string) {
   }
 }
 
-export async function createPaymentReceipt(data: {
-  paymentReceived: number;
-  paymentMethod: "ONLINE" | "CASH" | "OTHER";
-  paymentStatus: "SUCCESS" | "FAILED";
+export async function createPaymentReceived(data: {
   invoiceId: string;
+  invoiceDate?: Date;
+  paymentDate: Date;
+  paymentAmount: number;
+  paymentMode: "ONLINE" | "CASH" | "OTHER";
+  transactionReference?: string;
+  remarks?: string;
+  paymentStatus?: "SUCCESS" | "FAILED";
 }) {
   try {
-    const paymentReceipt = await prisma.paymentReceipt.create({
-      data,
-    });
-    
-    // Update invoice remaining amount
+    // Get current invoice to calculate balance
     const invoice = await prisma.invoice.findUnique({
       where: { id: data.invoiceId },
     });
     
-    if (invoice && data.paymentStatus === "SUCCESS") {
-      const newRemainingAmount = invoice.remainingAmount - data.paymentReceived;
+    if (!invoice) {
+      return { success: false, error: "Invoice not found" };
+    }
+    
+    const balanceAfterPayment = invoice.remainingAmount - data.paymentAmount;
+    
+    const paymentReceived = await prisma.paymentReceived.create({
+      data: {
+        ...data,
+        paymentStatus: data.paymentStatus || "SUCCESS",
+        balanceAfterPayment: Math.max(0, balanceAfterPayment),
+      },
+    });
+    
+    // Update invoice remaining amount if payment is successful
+    if (data.paymentStatus !== "FAILED") {
       await prisma.invoice.update({
         where: { id: data.invoiceId },
         data: {
-          remainingAmount: Math.max(0, newRemainingAmount),
-          isCompleted: newRemainingAmount <= 0,
+          remainingAmount: Math.max(0, balanceAfterPayment),
         },
       });
     }
     
     revalidatePath("/admin/dashboard");
-    return { success: true, data: paymentReceipt };
+    return { success: true, data: paymentReceived };
   } catch (error) {
-    return { success: false, error: "Failed to create payment receipt" };
+    return { success: false, error: "Failed to create payment record" };
   }
 }

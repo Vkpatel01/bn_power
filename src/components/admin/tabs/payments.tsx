@@ -5,17 +5,18 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { getInvoices } from "@/actions/invoice.actions"
-import { createPaymentReceipt } from "@/actions/invoice.actions"
+import { createPaymentReceived } from "@/actions/payment.actions"
 
 interface Invoice {
   id: string;
   invoiceNo: string;
-  client: string;
   totalBillingAmount: number;
-  netPay: number;
+  netPayAmount: number;
   remainingAmount: number;
-  isCompleted: boolean;
-  paymentReceipt: any;
+  payments: any[];
+  workOrder: {
+    clientName: string;
+  };
 }
 
 export function Payments() {
@@ -23,9 +24,12 @@ export function Payments() {
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [paymentData, setPaymentData] = useState({
-    paymentReceived: "",
-    paymentMethod: "ONLINE" as "ONLINE" | "CASH" | "OTHER",
+    paymentAmount: "",
+    paymentMode: "ONLINE" as "ONLINE" | "CASH" | "OTHER",
     paymentStatus: "SUCCESS" as "SUCCESS" | "FAILED",
+    paymentDate: new Date().toISOString().split('T')[0],
+    transactionReference: "",
+    remarks: "",
   });
 
   useEffect(() => {
@@ -45,19 +49,25 @@ export function Payments() {
     e.preventDefault();
     if (!selectedInvoice) return;
 
-    const result = await createPaymentReceipt({
-      paymentReceived: parseFloat(paymentData.paymentReceived),
-      paymentMethod: paymentData.paymentMethod,
+    const result = await createPaymentReceived({
+      paymentAmount: parseFloat(paymentData.paymentAmount),
+      paymentMode: paymentData.paymentMode,
       paymentStatus: paymentData.paymentStatus,
+      paymentDate: new Date(paymentData.paymentDate),
+      transactionReference: paymentData.transactionReference || undefined,
+      remarks: paymentData.remarks || undefined,
       invoiceId: selectedInvoice.id,
     });
 
     if (result.success) {
       alert("Payment recorded successfully!");
       setPaymentData({
-        paymentReceived: "",
-        paymentMethod: "ONLINE",
+        paymentAmount: "",
+        paymentMode: "ONLINE",
         paymentStatus: "SUCCESS",
+        paymentDate: new Date().toISOString().split('T')[0],
+        transactionReference: "",
+        remarks: "",
       });
       setSelectedInvoice(null);
       fetchInvoices();
@@ -97,7 +107,7 @@ export function Payments() {
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="font-mono text-sm font-semibold">{invoice.invoiceNo}</p>
-                      <p className="text-sm text-muted-foreground">{invoice.client}</p>
+                      <p className="text-sm text-muted-foreground">{invoice.workOrder.clientName}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium">₹{invoice.remainingAmount.toLocaleString()}</p>
@@ -131,19 +141,30 @@ export function Payments() {
                   <h4 className="font-semibold mb-2">Invoice Details</h4>
                   <div className="space-y-1 text-sm">
                     <p><span className="font-medium">Invoice:</span> {selectedInvoice.invoiceNo}</p>
-                    <p><span className="font-medium">Client:</span> {selectedInvoice.client}</p>
+                    <p><span className="font-medium">Client:</span> {selectedInvoice.workOrder.clientName}</p>
                     <p><span className="font-medium">Total Amount:</span> ₹{selectedInvoice.totalBillingAmount.toLocaleString()}</p>
-                    <p><span className="font-medium">Net Pay:</span> ₹{selectedInvoice.netPay.toLocaleString()}</p>
+                    <p><span className="font-medium">Net Pay:</span> ₹{selectedInvoice.netPayAmount.toLocaleString()}</p>
                     <p><span className="font-medium">Remaining:</span> ₹{selectedInvoice.remainingAmount.toLocaleString()}</p>
                   </div>
                 </div>
 
                 <div className="space-y-2">
+                  <label className="text-sm font-medium">Payment Date</label>
+                  <Input
+                    name="paymentDate"
+                    type="date"
+                    value={paymentData.paymentDate}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
                   <label className="text-sm font-medium">Payment Amount (₹)</label>
                   <Input
-                    name="paymentReceived"
+                    name="paymentAmount"
                     type="number"
-                    value={paymentData.paymentReceived}
+                    value={paymentData.paymentAmount}
                     onChange={handleChange}
                     placeholder="0.00"
                     max={selectedInvoice.remainingAmount}
@@ -154,8 +175,8 @@ export function Payments() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Payment Method</label>
                   <select
-                    name="paymentMethod"
-                    value={paymentData.paymentMethod}
+                    name="paymentMode"
+                    value={paymentData.paymentMode}
                     onChange={handleChange}
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base"
                   >
@@ -176,6 +197,28 @@ export function Payments() {
                     <option value="SUCCESS">Success</option>
                     <option value="FAILED">Failed</option>
                   </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Transaction Reference (Optional)</label>
+                  <Input
+                    name="transactionReference"
+                    type="text"
+                    value={paymentData.transactionReference}
+                    onChange={handleChange}
+                    placeholder="Transaction ID or reference"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Remarks (Optional)</label>
+                  <Input
+                    name="remarks"
+                    type="text"
+                    value={paymentData.remarks}
+                    onChange={handleChange}
+                    placeholder="Additional notes"
+                  />
                 </div>
 
                 <div className="flex gap-2">

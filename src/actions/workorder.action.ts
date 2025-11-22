@@ -6,13 +6,12 @@ import { revalidatePath } from "next/cache";
 export async function createWorkOrder(data: {
   workOrderNumber: string;
   clientName: string;
-  GSTIN?: string;
+  location?: string;
   workOrderDate: Date;
   workDescription: string;
-  amount: number;
-  GST: number;
+  billAmount: number;
+  gstAmount: number;
   totalAmount: number;
-  userId?: string;
 }) {
   try {
     const workOrder = await prisma.workOrder.create({
@@ -33,7 +32,6 @@ export async function getWorkOrders() {
     const workOrders = await prisma.workOrder.findMany({
       include: {
         invoices: true,
-        user: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -50,10 +48,9 @@ export async function getWorkOrderById(id: string) {
       include: {
         invoices: {
           include: {
-            paymentReceipt: true,
+            payments: true,
           },
         },
-        user: true,
       },
     });
     return { success: true, data: workOrder };
@@ -65,14 +62,15 @@ export async function getWorkOrderById(id: string) {
 export async function updateWorkOrder(id: string, data: Partial<{
   workOrderNumber: string;
   clientName: string;
-  GSTIN: string;
+  location: string;
   workOrderDate: Date;
   workDescription: string;
-  amount: number;
-  GST: number;
+  billAmount: number;
+  gstAmount: number;
   totalAmount: number;
   remainingAmount: number;
-  isCompleted: boolean;
+  status: string;
+  remarks: string;
 }>) {
   try {
     const workOrder = await prisma.workOrder.update({

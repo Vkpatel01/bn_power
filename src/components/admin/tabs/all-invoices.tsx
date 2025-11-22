@@ -9,23 +9,24 @@ import { getWorkOrders } from "@/actions/workorder.action"
 
 interface Invoice {
   id: string;
-  woDate: Date;
-  woNumber: string;
-  site: string;
-  invoiceDate: Date;
   invoiceNo: string;
-  client: string;
+  invoiceDate: Date;
   billingAmount: number;
-  billingIGST: number;
-  billingSGST: number;
+  taxType?: string;
+  igstAmount: number;
+  cgstAmount: number;
+  sgstAmount: number;
   totalBillingAmount: number;
-  tds: number;
-  netPay: number;
+  tdsAmount: number;
+  netPayAmount: number;
   remainingAmount: number;
-  isCompleted: boolean;
-  reminderEnabled: boolean;
-  workOrder: any;
-  paymentReceipt: any;
+  remarks?: string;
+  workOrder: {
+    workOrderNumber: string;
+    clientName: string;
+    location?: string;
+  };
+  payments: any[];
 }
 
 export function AllInvoices() {
@@ -56,19 +57,19 @@ export function AllInvoices() {
 
   const filteredInvoices = invoices.filter(invoice =>
     invoice.invoiceNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    invoice.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    invoice.woNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    invoice.workOrder.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    invoice.workOrder.workOrderNumber.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusColor = (invoice: Invoice) => {
-    if (invoice.isCompleted) return "bg-green-100 text-green-800";
-    if (invoice.paymentReceipt) return "bg-yellow-100 text-yellow-800";
+    if (invoice.remainingAmount === 0) return "bg-green-100 text-green-800";
+    if (invoice.payments && invoice.payments.length > 0) return "bg-yellow-100 text-yellow-800";
     return "bg-red-100 text-red-800";
   };
 
   const getStatusText = (invoice: Invoice) => {
-    if (invoice.isCompleted) return "Paid";
-    if (invoice.paymentReceipt) return "Partial";
+    if (invoice.remainingAmount === 0) return "Paid";
+    if (invoice.payments && invoice.payments.length > 0) return "Partial";
     return "Unpaid";
   };
 
@@ -103,7 +104,7 @@ export function AllInvoices() {
                   <th className="px-4 py-3 text-left font-medium">Invoice No</th>
                   <th className="px-4 py-3 text-left font-medium">Client</th>
                   <th className="px-4 py-3 text-left font-medium">WO Number</th>
-                  <th className="px-4 py-3 text-left font-medium">Site</th>
+                  <th className="px-4 py-3 text-left font-medium">Location</th>
                   <th className="px-4 py-3 text-left font-medium">Invoice Date</th>
                   <th className="px-4 py-3 text-left font-medium">Total Amount</th>
                   <th className="px-4 py-3 text-left font-medium">Net Pay</th>
@@ -116,12 +117,12 @@ export function AllInvoices() {
                 {filteredInvoices.map((invoice) => (
                   <tr key={invoice.id} className="border-b hover:bg-muted/50 transition">
                     <td className="px-4 py-3 font-mono text-xs font-semibold">{invoice.invoiceNo}</td>
-                    <td className="px-4 py-3">{invoice.client}</td>
-                    <td className="px-4 py-3 font-mono text-xs">{invoice.woNumber}</td>
-                    <td className="px-4 py-3">{invoice.site}</td>
+                    <td className="px-4 py-3">{invoice.workOrder.clientName}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{invoice.workOrder.workOrderNumber}</td>
+                    <td className="px-4 py-3">{invoice.workOrder.location || 'N/A'}</td>
                     <td className="px-4 py-3 text-xs">{new Date(invoice.invoiceDate).toLocaleDateString()}</td>
                     <td className="px-4 py-3 font-medium">₹{invoice.totalBillingAmount.toLocaleString()}</td>
-                    <td className="px-4 py-3 font-medium">₹{invoice.netPay.toLocaleString()}</td>
+                    <td className="px-4 py-3 font-medium">₹{invoice.netPayAmount.toLocaleString()}</td>
                     <td className="px-4 py-3 font-medium text-orange-600">₹{invoice.remainingAmount.toLocaleString()}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(invoice)}`}>

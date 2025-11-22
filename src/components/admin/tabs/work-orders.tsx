@@ -13,14 +13,15 @@ interface WorkOrder {
   id: string;
   workOrderNumber: string;
   clientName: string;
-  GSTIN?: string;
+  location?: string;
   workOrderDate: Date;
   workDescription: string;
-  amount: number;
-  GST: number;
+  billAmount: number;
+  gstAmount: number;
   totalAmount: number;
   remainingAmount: number;
-  isCompleted: boolean;
+  status: string;
+  remarks?: string;
   invoices: any[];
 }
 
@@ -32,11 +33,12 @@ export function WorkOrders() {
   const [formData, setFormData] = useState({
     workOrderNumber: "",
     clientName: "",
-    GSTIN: "",
+    location: "",
     workOrderDate: "",
     workDescription: "",
-    amount: "",
-    GST: "",
+    billAmount: "",
+    gstAmount: "",
+    remarks: "",
   });
 
   useEffect(() => {
@@ -58,18 +60,18 @@ export function WorkOrders() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const amount = parseFloat(formData.amount);
-    const gst = parseFloat(formData.GST);
-    const totalAmount = amount + (amount * gst / 100);
+    const billAmount = parseFloat(formData.billAmount);
+    const gstAmount = parseFloat(formData.gstAmount);
+    const totalAmount = billAmount + gstAmount;
 
     const result = await createWorkOrder({
       workOrderNumber: formData.workOrderNumber,
       clientName: formData.clientName,
-      GSTIN: formData.GSTIN || undefined,
+      location: formData.location || undefined,
       workOrderDate: new Date(formData.workOrderDate),
       workDescription: formData.workDescription,
-      amount,
-      GST: gst,
+      billAmount,
+      gstAmount,
       totalAmount,
     });
 
@@ -77,11 +79,12 @@ export function WorkOrders() {
       setFormData({
         workOrderNumber: "",
         clientName: "",
-        GSTIN: "",
+        location: "",
         workOrderDate: "",
         workDescription: "",
-        amount: "",
-        GST: "",
+        billAmount: "",
+        gstAmount: "",
+        remarks: "",
       });
       setIsAddingWO(false);
       fetchWorkOrders();
@@ -127,20 +130,20 @@ export function WorkOrders() {
                   <Input name="clientName" value={formData.clientName} onChange={handleChange} placeholder="Client name" required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">GSTIN (Optional)</label>
-                  <Input name="GSTIN" value={formData.GSTIN} onChange={handleChange} placeholder="GSTIN" />
+                  <label className="text-sm font-medium">Location (Optional)</label>
+                  <Input name="location" value={formData.location} onChange={handleChange} placeholder="Work location" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Work Order Date</label>
                   <Input name="workOrderDate" type="date" value={formData.workOrderDate} onChange={handleChange} required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Amount (₹)</label>
-                  <Input name="amount" type="number" value={formData.amount} onChange={handleChange} placeholder="0.00" required />
+                  <label className="text-sm font-medium">Bill Amount (₹)</label>
+                  <Input name="billAmount" type="number" value={formData.billAmount} onChange={handleChange} placeholder="0.00" required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">GST (%)</label>
-                  <Input name="GST" type="number" value={formData.GST} onChange={handleChange} placeholder="18" required />
+                  <label className="text-sm font-medium">GST Amount (₹)</label>
+                  <Input name="gstAmount" type="number" value={formData.gstAmount} onChange={handleChange} placeholder="0.00" required />
                 </div>
               </div>
               <div className="space-y-2">
@@ -152,6 +155,16 @@ export function WorkOrders() {
                   placeholder="Describe the work to be done"
                   className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Remarks (Optional)</label>
+                <textarea
+                  name="remarks"
+                  value={formData.remarks}
+                  onChange={handleChange}
+                  placeholder="Additional remarks"
+                  className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 />
               </div>
               <Button type="submit" className="w-full">
@@ -193,8 +206,12 @@ export function WorkOrders() {
                       <p className="text-xs text-muted-foreground">{new Date(wo.workOrderDate).toLocaleDateString()}</p>
                     </div>
                     <div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${wo.isCompleted ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}`}>
-                        {wo.isCompleted ? "Completed" : "Active"}
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        wo.status === "COMPLETED" ? "bg-green-100 text-green-800" : 
+                        wo.status === "PENDING" ? "bg-yellow-100 text-yellow-800" :
+                        "bg-blue-100 text-blue-800"
+                      }`}>
+                        {wo.status}
                       </span>
                     </div>
                     <div className="flex gap-2">
@@ -217,12 +234,12 @@ export function WorkOrders() {
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
-                          <p className="font-medium">Amount</p>
-                          <p>₹{wo.amount.toLocaleString()}</p>
+                          <p className="font-medium">Bill Amount</p>
+                          <p>₹{wo.billAmount.toLocaleString()}</p>
                         </div>
                         <div>
-                          <p className="font-medium">GST</p>
-                          <p>{wo.GST}%</p>
+                          <p className="font-medium">GST Amount</p>
+                          <p>₹{wo.gstAmount.toLocaleString()}</p>
                         </div>
                         <div>
                           <p className="font-medium">Total Amount</p>
@@ -233,6 +250,18 @@ export function WorkOrders() {
                           <p>₹{wo.remainingAmount.toLocaleString()}</p>
                         </div>
                       </div>
+                      {wo.location && (
+                        <div>
+                          <p className="font-medium">Location</p>
+                          <p className="text-sm text-muted-foreground">{wo.location}</p>
+                        </div>
+                      )}
+                      {wo.remarks && (
+                        <div>
+                          <p className="font-medium">Remarks</p>
+                          <p className="text-sm text-muted-foreground">{wo.remarks}</p>
+                        </div>
+                      )}
                       <div>
                         <h4 className="font-semibold mb-2">Invoices ({wo.invoices.length})</h4>
                         {wo.invoices.length > 0 ? (

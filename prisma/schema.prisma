@@ -1,10 +1,10 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
 }
 
 enum PaymentMethod {
@@ -18,103 +18,65 @@ enum PaymentStatus {
   FAILED
 }
 
-model User {
-  id            String       @id @default(cuid())
-  name          String?
-  email         String       @unique
-  password      String?
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  workOrders    WorkOrder[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String   // hashed password
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model WorkOrder {
   id              String       @id @default(cuid())
   workOrderNumber String       @unique
-  clientName      String
-  GSTIN           String?
   workOrderDate   DateTime
+  clientName      String
+  location        String?
   workDescription String
-  amount          Float
-  GST             Float
+  billAmount      Float
+  gstAmount       Float
   totalAmount     Float
+  status          String       @default("PENDING")
+  remarks         String?
   remainingAmount Float        @default(0)
-  isCompleted     Boolean      @default(false)
-  userId          String?
-  user            User?        @relation(fields: [userId], references: [id])
   invoices        Invoice[]
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 }
 
 model Invoice {
-  id                String           @id @default(cuid())
-  woDate            DateTime
-  woNumber          String
-  site              String
-  invoiceDate       DateTime
-  invoiceNo         String           @unique
-  client            String
-  billingAmount     Float
-  billingIGST       Float
-  billingSGST       Float
-  totalBillingAmount Float
-  tds               Float
-  netPay            Float
-  remainingAmount   Float            @default(0)
-  isCompleted       Boolean          @default(false)
-  reminderEnabled   Boolean          @default(false)
-  workOrderId       String
-  workOrder         WorkOrder        @relation(fields: [workOrderId], references: [id])
-  paymentReceipt    PaymentReceipt?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id                   String     @id @default(cuid())
+  invoiceNo            String     @unique
+  workOrderId          String
+  invoiceDate          DateTime
+  billingAmount        Float
+  taxType              String?
+  igstAmount           Float      @default(0)
+  cgstAmount           Float      @default(0)
+  sgstAmount           Float      @default(0)
+  totalBillingAmount   Float
+  tdsAmount            Float      @default(0)
+  netPayAmount         Float
+  remainingAmount      Float      @default(0)
+  remarks              String?
+  workOrder            WorkOrder  @relation(fields: [workOrderId], references: [id])
+  payments             PaymentReceived[]
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
 }
 
-model PaymentReceipt {
-  id              String        @id @default(cuid())
-  paymentReceived Float
-  paymentMethod   PaymentMethod
-  paymentStatus   PaymentStatus
-  invoiceId       String        @unique
-  invoice         Invoice       @relation(fields: [invoiceId], references: [id])
-  createdAt       DateTime      @default(now())
+model PaymentReceived {
+  id                     String        @id @default(cuid())
+  invoiceId              String
+  invoiceDate            DateTime?
+  paymentDate            DateTime
+  paymentAmount          Float
+  paymentMode            PaymentMethod
+  transactionReference   String?
+  balanceAfterPayment    Float
+  remarks                String?
+  paymentStatus          PaymentStatus @default(SUCCESS)
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+  createdAt DateTime @default(now())
 }

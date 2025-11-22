@@ -1,38 +1,31 @@
 "use client"
 
 import type React from "react"
-import Image from "next/image";
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function AdminLogin() {
   const router = useRouter()
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
-    try {
-      const result = await signIn("credentials", {
-        username,
-        password,
-        redirect: false,
-      })
-
-      if (result?.error) {
-        setError("Invalid username or password")
-      } else {
-        router.push("/admin/dashboard")
-      }
-    } catch (error) {
-      setError("Login failed. Please try again.")
+    // Mock authentication - check for hardcoded credentials
+    if (email === "admin@bnpower.com" && password === "admin123") {
+      // Store auth state in sessionStorage (mock auth)
+      sessionStorage.setItem("isAdminAuthenticated", "true")
+      sessionStorage.setItem("adminEmail", email)
+      router.push("/admin/dashboard")
+    } else {
+      setError("Invalid email or password. Try admin@bnpower.com / admin123")
     }
   }
 
@@ -40,8 +33,10 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="absolute top-0 left-0 p-4">
         <a href="/" className="flex items-center gap-2 hover:opacity-80 transition">
-        <Image src="/bnpe-logo.jpg"  alt="BN Power Logo"  width={50}  height={50}  className="rounded-full object-cover"/>
-          <span className="font-bold text-lg">BN Power Enterprises</span>
+          <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
+            <span className="text-accent-foreground font-bold text-sm">BN</span>
+          </div>
+          <span className="font-bold text-lg">BN Power</span>
         </a>
       </div>
 
@@ -53,15 +48,15 @@ export default function AdminLogin() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="username" className="text-sm font-medium">
-                Username
+              <label htmlFor="email" className="text-sm font-medium">
+                Email
               </label>
               <Input
-                id="username"
-                type="text"
-                placeholder="admin@bnpower"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                placeholder="admin@bnpower.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -89,7 +84,7 @@ export default function AdminLogin() {
           <div className="mt-6 pt-6 border-t">
             <p className="text-xs text-muted-foreground text-center mb-2">Demo Credentials:</p>
             <p className="text-xs text-muted-foreground text-center">
-              Username: <span className="font-mono">admin@bnpower</span>
+              Email: <span className="font-mono">admin@bnpower.com</span>
             </p>
             <p className="text-xs text-muted-foreground text-center">
               Password: <span className="font-mono">admin123</span>
