@@ -5,6 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { sendContactEmail } from "@/actions/contact"
 
 export function Contact() {
   const [formData, setFormData] = useState({
@@ -18,10 +19,22 @@ export function Contact() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Form submitted:", formData)
-    setFormData({ name: "", email: "", message: "" })
+    const form = e.target as HTMLFormElement
+    const formData = new FormData(form)
+    
+    try {
+      const result = await sendContactEmail(formData)
+      if (result.success) {
+        alert('Message sent successfully!')
+        setFormData({ name: "", email: "", message: "" })
+      } else {
+        alert(`Failed to send message: ${result.message}`)
+      }
+    } catch (error) {
+      alert('An error occurred. Please try again.')
+    }
   }
 
   return (
