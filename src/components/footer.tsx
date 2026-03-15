@@ -102,7 +102,7 @@ export function Footer() {
 
         <div className="border-t border-primary-foreground/30 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-primary-foreground/80 mb-4 md:mb-0">© 2025 BN Power. All rights reserved.</p>
+            <p className="text-sm text-primary-foreground/80 mb-4 md:mb-0">© 2026 BN Power. All rights reserved.</p>
             <div className="flex gap-4">
               <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
                 <Linkedin size={20} />
